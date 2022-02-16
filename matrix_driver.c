@@ -41,6 +41,7 @@ static int __init matrix_init(void);
 static void __exit matrix_exit(void);
 static int matrix_remove(struct platform_device *pdev);
 void extract_matrix(char store_mat[50], int mat[50],int dim[]);
+int myAtoi(char* str);
 
 //*********************GLOBAL VARIABLES*************************************
 struct matrix_info {
@@ -221,7 +222,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     int n=0, m=0;
     char num[5];
     int numlen=0;
-	int len = i;
+	int len;
 	
     for (i = 0; store_mat[i] != '\0'; i++);
     len = i;
@@ -231,7 +232,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
         if(store_mat[i]==']')
         {
             num[numlen]='\0';
-            mat[j]=atoi(num);
+            mat[j]=myAtoi(num);
             j++;
 
             for(i=0; i<5; i++)
@@ -261,9 +262,9 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
         if(store_mat[i]==',' && store_mat[i+1]!='[')
         {
             num[numlen]='\0';
-            mat[j]=atoi(num);
+            mat[j]=myAtoi(num);
             j++;
-            for(int i=0; i<5; i++)
+            for(i=0; i<5; i++)
             {
                 num[i]=0;
             }
@@ -345,6 +346,14 @@ static int __init matrix_init(void)
   unregister_chrdev_region(my_dev_id, 1);
   return -1;
 
+}
+
+int myAtoi(char* str)
+{
+    int res = 0;
+    for (int i = 0; str[i] != '\0'; ++i)
+        res = res * 10 + str[i] - '0';
+    return res;
 } 
 
 static void __exit matrix_exit(void)  		
