@@ -114,7 +114,7 @@ static int matrix_probe(struct platform_device *pdev)
   // Put phisical adresses in timer_info structure
   vp->mem_start = r_mem->start;
   vp->mem_end = r_mem->end;
-  printk(KERN_INFO "matrix_probe: MEMORY LOCATION",(void *)vp->mem_start);  
+  printk(KERN_INFO "matrix_probe: MEMORY LOCATION %p\n",(void *)vp->mem_start);  
   // Reserve that memory space for this driver
   if (!request_mem_region(vp->mem_start,vp->mem_end - vp->mem_start + 1, DRIVER_NAME))
   {
@@ -172,7 +172,7 @@ static int matrix_close(struct inode *i, struct file *f)
 }
 static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t *off)
 {
-  printk(KERN_INFO,"matrix read\n");
+  printk(KERN_INFO "matrix read\n");
   return 0;
 }
 static ssize_t matrix_write(struct file *f, const char __user *buf, size_t length, loff_t *off)
@@ -186,7 +186,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
   }  
     buff[length] = '\0';
   
-    sscanf(buffer, "%[^*]*%s" , store_matA, store_matB);
+    sscanf(buff, "%[^*]*%s" , store_matA, store_matB);
 
     extract_matrix(store_matA, matA, dimA);
     extract_matrix(store_matB, matB, dimB);
@@ -201,8 +201,8 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
  
   //if(ret != -EINVAL)//checking for parsing error
   //{
-    iowrite32((256*ypos + xpos)*4, vp->base_addr + 8);
-    iowrite32(rgb, vp->base_addr);         
+   // iowrite32((256*ypos + xpos)*4, vp->base_addr + 8);
+    //iowrite32(rgb, vp->base_addr);         
   //}
   /*else
   {
@@ -221,9 +221,10 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     int n=0, m=0;
     char num[5];
     int numlen=0;
-
+	int len = i;
+	
     for (i = 0; store_mat[i] != '\0'; i++);
-    int len = i;
+    len = i;
 
     for (i = 1; i<len-1; i++)
     {
@@ -233,7 +234,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             mat[j]=atoi(num);
             j++;
 
-            for(int i=0; i<5; i++)
+            for(i=0; i<5; i++)
             {
                 num[i]=0;
             }
@@ -246,8 +247,8 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             }
             if(m != dim[1])
             {
-                printf("\nError!\n");
-                return -1;
+                //printf("\nError!\n");
+                //return -1;
             }
             m=0;
         }
@@ -280,12 +281,12 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
         //printf("\nMaxDim : 7x7");
-        return -1;
+        //return -1;
     }
-    for(int i=0; i<dim[0]*dim[1];i++){
+    for(i=0; i<dim[0]*dim[1];i++){
          if(mat[i] > 4096){
             //printf("\nMaxNum : 4096");
-            return -1;
+            //return -1;
          }
     }
 }
