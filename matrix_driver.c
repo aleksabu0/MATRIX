@@ -306,7 +306,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 //***************************************************
 // HELPER FUNCTIONS (READ MATRIX)
 
-void extract_matrix(char store_mat[50], int mat[50],int dim[])
+void extract_matrix(char store_mat[50], int mat[50],int dim[50])
 {
     int i, j=0, k=0;
     int n=0, m=0;
