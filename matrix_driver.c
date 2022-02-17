@@ -223,6 +223,8 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
   m = 0;
   p = 0;
 
+	//echo "[[10,2],[3,4]]*[[3,2],[3,4]]" > /dev/matmul
+
   ret = copy_from_user(buff, buf, length);  
   if(ret){
     printk("copy from user failed \n");
@@ -260,7 +262,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	m = dimA[1];
 	p = dimB[1];
 	
-	for(i=0;i<dimA[0]*dimA[1];i++)
+	/*for(i=0;i<dimA[0]*dimA[1];i++)
 	{
 		iowrite32(matA[i], vp[0]->base_addr+4*i);
 	}
@@ -279,7 +281,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	iowrite32(0, vp[3]->base_addr+4*1);
 	
 	while(ioread32(vp[3]->base_addr+4*0)!=1);
-	
+	*/
 	
 
 	
