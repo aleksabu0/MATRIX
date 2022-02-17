@@ -27,7 +27,7 @@ MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Driver for matrix ouvput");
 #define DEVICE_NAME "matrix"
 #define DRIVER_NAME "matrix_driver"
-#define BUFF_SIZE 20
+#define BUFF_SIZE 200
 
 
 //*******************FUNCTION PROTOTYPES************************************
@@ -218,10 +218,11 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 {	
   char buff[BUFF_SIZE];
   int ret = 0;
+  int i = 0, k = 0;
   n = 0;
   m = 0;
   p = 0;
-  int i;
+
   ret = copy_from_user(buff, buf, length);  
   if(ret){
     printk("copy from user failed \n");
@@ -229,7 +230,21 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
   }  
     buff[length] = '\0';
   
-    sscanf(buff, "%[^*]*%s" , store_matA, store_matB);
+    //sscanf(buff, "%[^*]*%s" , store_matA, store_matB);
+	
+	while(buff[i] != '*'){
+		store_matA[k] = buff[i];
+		k++;
+		i++;
+	}
+	k = 0;
+	i++;
+	while(buff[i] != '\0'){
+		store_matB[k] = buff[i];
+		k++;
+		i++;
+	}
+	printk(KERN_INFO "mat A %s \n",matA);
 
     extract_matrix(store_matA, matA, dimA);
     extract_matrix(store_matB, matB, dimB);
