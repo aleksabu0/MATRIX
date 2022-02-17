@@ -283,7 +283,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	iowrite32(0, vp[3]->base_addr+4*1);
 	
 	while(ioread32(vp[3]->base_addr+4*0)!=1);
-	*/
+	
 	
 
 	
@@ -299,7 +299,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
   {
     printk(KERN_WARNING "matrix_write: Wrong write format, expected \"xpos,ypos,rgb\"\n");
     // return -EINVAL;//parsing error
-  }        
+  }  */      
   return length;
 }
 
@@ -313,16 +313,17 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     int n=0, m=0;
     char num[5];
     int numlen=0;
-
+	int len;
+	
     for (i = 0; store_mat[i] != '\0'; i++);
-    int len = i;
+    len = i;
 
     for (i = 1; i<len-1; i++)
     {
         if(store_mat[i]==']')
         {
             num[numlen]='\0';
-            mat[j]=atoi(num);
+            mat[j]=myAtoi(num);
             j++;
 
             for(z=0; z<5; z++)
@@ -352,7 +353,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
         if(store_mat[i]==',' && store_mat[i+1]!='[')
         {
             num[numlen]='\0';
-            mat[j]=atoi(num);
+            mat[j]=myAtoi(num);
             j++;
             for(z=0; z<5; z++)
             {
