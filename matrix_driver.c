@@ -117,7 +117,7 @@ static int matrix_probe(struct platform_device *pdev)
   // Put phisical adresses in timer_info structure
   vp[cnt]->mem_start = r_mem->start;
   vp[cnt]->mem_end = r_mem->end;
-  printk(KERN_INFO "matrix_probe: MEMORY LOCATION %p\n",(void *)vp[cnt]->mem_start);  
+  printk(KERN_INFO "matrix_probe: MEMORY LOCATION %px\n",(void *)r_mem->start);  
   // Reserve that memory space for this driver
   if (!request_mem_region(vp[cnt]->mem_start,vp[cnt]->mem_end - vp[cnt]->mem_start + 1, DRIVER_NAME))
   {
@@ -136,6 +136,10 @@ static int matrix_probe(struct platform_device *pdev)
 
   printk(KERN_NOTICE "matrix_probe: matrix platform driver registered\n");
   cnt++;
+  if(cnt==4)
+  {
+	  cnt=0;
+  }  
   return 0;//ALL OK
  error2:
   release_mem_region(vp[cnt]->mem_start, vp[cnt]->mem_end - vp[cnt]->mem_start + 1);
@@ -158,6 +162,7 @@ static int matrix_remove(struct platform_device *pdev)
   release_mem_region(vp[cnt]->mem_start, (vp[cnt]->mem_end - vp[cnt]->mem_start + 1));
   kfree(vp[cnt]);
   printk(KERN_INFO "matrix_remove: matrix driver removed");
+  cnt++;
   return 0;
 }
 
