@@ -178,7 +178,7 @@ static int matrix_open(struct inode *i, struct file *f)
 }
 static int matrix_close(struct inode *i, struct file *f)
 {
-  printk(KERN_INFO "File closed\n");
+  printk(KERN_INFO "\nFile closed\n");
   return 0;
 }
 static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t *off)
@@ -188,6 +188,7 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	int number[50];
 	int i = 0;
 	char buff[BUFF_SIZE];
+	char temp[BUFF_SIZE];
 	if (endRead)
 	{
 		endRead = 0;
@@ -196,8 +197,10 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	for(i=0;i<n*p;i++)
 	{
 		number[i] = ioread32(vp[2]->base_addr+4*i);
+		myItoa(number[i],temp);
+		strcat(buff,temp);
 	}	
-	myItoa(number[0],buff);
+	
 	
 	for (i = 0; buff[i] != '\0'; i++);
     length = i;
@@ -404,7 +407,7 @@ void myItoa(int n, char s[])
 	 } while ((n /= 10) > 0);     /* delete it */
 	 if (sign < 0)
 		 s[i++] = '-';
-	 s[i] = '\0';
+	 //s[i] = '\0';
 	 reverse(s);
  }
 
