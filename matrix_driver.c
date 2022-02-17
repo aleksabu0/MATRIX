@@ -223,6 +223,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
   m = 0;
   p = 0;
 
+	//git clone https://github.com/aleksabu0/MATRIX
 	//echo "[[10,2],[3,4]]*[[3,2],[3,4]]" > /dev/matmul
 
   ret = copy_from_user(buff, buf, length);  
@@ -249,13 +250,14 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	}
 	store_matB[k]='\0';
 	printk(KERN_INFO "mat A %s \n",store_matA);
-
+	
+	printk(KERN_INFO "Starting extraction\n");
     extract_matrix(store_matA, matA, dimA);
     extract_matrix(store_matB, matB, dimB);
-	
+	printk(KERN_INFO "Ended extraction\n");
     if(dimA[1] != dimB[0]){
-        //printf("\nError! DiffDim\n");
-        return -1;
+        printk(KERN_INFO "\nError! DiffDim\n");
+        //return -1;
     }
 
 	n = dimA[0];
