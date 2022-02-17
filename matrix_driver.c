@@ -64,6 +64,9 @@ int matA[50], matB[50];
 char store_matA[50], store_matB[50];
 int cnt=0;
 int endRead =0;
+int n = 0;
+int m = 0;
+int p = 0;
 
 static struct file_operations my_fops =
   {
@@ -174,19 +177,19 @@ static int matrix_remove(struct platform_device *pdev)
 
 static int matrix_open(struct inode *i, struct file *f)
 {
-  printk(KERN_INFO "matrix opened\n");
+  printk(KERN_INFO "File opened\n");
   return 0;
 }
 static int matrix_close(struct inode *i, struct file *f)
 {
-  printk(KERN_INFO "matrix closed\n");
+  printk(KERN_INFO "File closed\n");
   return 0;
 }
 static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t *off)
 {
 	int ret;
 	int length = 0;
-	int number = 1234;
+	int number[50];
 	int i = 0;
 	char buff[BUFF_SIZE];
 	if (endRead)
@@ -194,7 +197,11 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 		endRead = 0;
 		return 0;
 	}
-	myItoa(number,buff);
+	for(i=0;i<n*p;i++)
+	{
+		number[i] = ioread32(vp[2]->base_addr+4*i);
+	}	
+	myItoa(number[0],buff);
 	
 	for (i = 0; buff[i] != '\0'; i++);
     length = i;
@@ -211,6 +218,10 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 {	
   char buff[BUFF_SIZE];
   int ret = 0;
+  n = 0;
+  m = 0;
+  p = 0;
+  int i;
   ret = copy_from_user(buff, buf, length);  
   if(ret){
     printk("copy from user failed \n");
@@ -228,6 +239,33 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
         return -1;
     }
 
+	n = dimA[0];
+	m = dimA[1];
+	p = dimB[1];
+	
+	for(i=0;i<dimA[0]*dimA[1];i++)
+	{
+		iowrite32(matA[i], vp[0]->base_addr+4*i);
+	}
+
+	for(i=0;i<dimB[0]*dimB[1];i++)
+	{
+		iowrite32(matB[i], vp[1]->base_addr+4*i);
+	}
+	
+	iowrite32(n, vp[3]->base_addr+4*2);
+	iowrite32(m, vp[3]->base_addr+4*3);
+	iowrite32(p, vp[3]->base_addr+4*4);
+	
+	iowrite32(1, vp[3]->base_addr+4*1);
+	for(i=0; i<100;i++);
+	iowrite32(0, vp[3]->base_addr+4*1);
+	
+	while(ioread32(vp[3]->base_addr+4*0)!=1);
+	
+	
+
+	
     //printf("\ndimA: %dx%d", dimA[0],dimA[1]);
     //printf("\ndimB: %dx%d", dimB[0],dimB[1]);
  
