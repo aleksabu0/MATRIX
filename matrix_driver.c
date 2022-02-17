@@ -40,7 +40,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 static int __init matrix_init(void);
 static void __exit matrix_exit(void);
 static int matrix_remove(struct platform_device *pdev);
-void extract_matrix(char store_mat[50], int mat[50],int dim[]);
+void extract_matrix(char store_mat[50], int mat[50],int dim[50]);
 int myAtoi(char* str);
 void myItoa(int num, char* str);
 void reverse(char s[]); 
@@ -58,10 +58,6 @@ static struct device *my_device;
 static int int_cnt;
 static struct matrix_info *vp[4] ;//= NULL; //array of struct
 
-int dimA[] = {0, 0};
-int dimB[] = {0, 0};
-int matA[50], matB[50];
-char store_matA[50], store_matB[50];
 int cnt=0;
 int endRead =0;
 int n = 0;
@@ -217,6 +213,10 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 static ssize_t matrix_write(struct file *f, const char __user *buf, size_t length, loff_t *off)
 {	
   char buff[BUFF_SIZE];
+  int dimA[] = {0, 0};
+  int dimB[] = {0, 0};
+  int matA[50], matB[50];
+  char store_matA[50], store_matB[50];
   int ret = 0;
   int i = 0, k = 0;
   n = 0;
