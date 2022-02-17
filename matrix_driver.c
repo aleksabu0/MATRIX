@@ -187,8 +187,9 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	int length = 0;
 	int number[50];
 	int i = 0;
-	char buff[BUFF_SIZE];
+	char buff[BUFF_SIZE] = "[";
 	char temp[BUFF_SIZE];
+	int p_temp = p;
 	if (endRead)
 	{
 		endRead = 0;
@@ -196,12 +197,23 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	}
 	for(i=0;i<n*p;i++)
 	{
+		switch(p_temp){
+			case p:
+				strcat(buff,"[");
+				break;
+			case 0:
+				strcat(buff,"]");
+				break;
+			default:
+				strcat(buff,",");
+		}
 		number[i] = ioread32(vp[2]->base_addr+4*i);
 		myItoa(number[i],temp);
 		strcat(buff,temp);
+		p_temp--;
 	}	
 	
-	
+	strcat(buff, "]\0");
 	for (i = 0; buff[i] != '\0'; i++);
     length = i;
 	
@@ -259,7 +271,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
     extract_matrix(store_matB, matB, dimB);
 	printk(KERN_INFO "Ended extraction\n");
     if(dimA[1] != dimB[0]){
-        printk(KERN_INFO "\nError! DiffDim\n");
+        printk(KERN_INFO "\nError: DiffDim\n");
         //return -1;
     }
 
