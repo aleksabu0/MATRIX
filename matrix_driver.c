@@ -54,7 +54,7 @@ static dev_t my_dev_id;
 static struct class *my_class;
 static struct device *my_device;
 static int int_cnt;
-static struct matrix_info *vp[4] = NULL; //array of struct
+static struct matrix_info *vp[4] ;//= NULL; //array of struct
 
 int dimA[] = {0, 0};
 int dimB[] = {0, 0};
@@ -181,8 +181,29 @@ static int matrix_close(struct inode *i, struct file *f)
 }
 static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t *off)
 {
-  printk(KERN_INFO "matrix read\n");
-  return 0;
+	int ret;
+	int len = 0;
+	u32 led_val = 0;
+	int i = 0;
+	char buff[BUFF_SIZE];
+	if (endRead)
+	{
+		endRead = 0;
+		return 0;
+	}
+	led_val = 1234;
+	myItoa(led_val,buff);
+	
+	for (i = 0; buff[i] != '\0'; i++);
+    len = i;
+	
+	ret = copy_to_user(buffer, buff, len);
+	if(ret)
+	return -EFAULT;
+	printk(KERN_INFO "Succesfully read\n");
+	endRead = 1;
+	return len;
+
 }
 static ssize_t matrix_write(struct file *f, const char __user *buf, size_t length, loff_t *off)
 {	
@@ -307,6 +328,26 @@ int myAtoi(char* str)
     for (i = 0; str[i] != '\0'; ++i)
         res = res * 10 + str[i] - '0';
     return res;
+}
+
+void myItoa(int num, char* str) 
+{
+    bool isNeg=false;
+    if(num < 0)
+      isNeg = true;
+
+    int idx = 0;
+    do {
+       int j = num % 10;
+       j = j < 0 ? j * -1 : j ;
+       str[idx++]=j+48;
+       num=num/10;
+    } while (num!=0);
+    if(isNeg)
+       str[idx++]='-';
+    str[idx]='\0';
+
+    std::reverse(str, str+idx);
 }
 
 
