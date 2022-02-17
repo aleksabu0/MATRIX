@@ -418,7 +418,7 @@ void myItoa(int n, char s[])
 	 } while ((n /= 10) > 0);     /* delete it */
 	 if (sign < 0)
 		 s[i++] = '-';
-	 //s[i] = '\0';
+	 s[i] = '\0';
 	 reverse(s);
  }
 
