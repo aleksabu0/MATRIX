@@ -187,7 +187,7 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	int length = 0;
 	int number;
 	int i, j, k=0;
-	char buff[BUFF_SIZE] = "[";
+	char buff[BUFF_SIZE] = "[\0";
 	char temp[BUFF_SIZE];
 	
 	if (endRead)
@@ -239,7 +239,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 
 	//git clone https://github.com/aleksabu0/MATRIX
 	//echo "[[10,2],[3,4]]*[[3,2],[3,4]]" > /dev/matmul
-
+	//echo "[[3,3,3],[3,3,3],[3,3,3]]*[[3,3,3],[3,3,3],[3,3,3]]" > /dev/matmul
   ret = copy_from_user(buff, buf, length);  
   if(ret){
     printk("copy from user failed \n");
@@ -437,6 +437,7 @@ void reverse(char s[])
          s[j] = c;
      }
  }
+ 
 
 
 //***************************************************
