@@ -264,7 +264,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	m = dimA[1];
 	p = dimB[1];
 	
-	/*for(i=0;i<dimA[0]*dimA[1];i++)
+	for(i=0;i<dimA[0]*dimA[1];i++)
 	{
 		iowrite32(matA[i], vp[0]->base_addr+4*i);
 	}
@@ -299,7 +299,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
   {
     printk(KERN_WARNING "matrix_write: Wrong write format, expected \"xpos,ypos,rgb\"\n");
     // return -EINVAL;//parsing error
-  }  */      
+  }        
   return length;
 }
 
@@ -325,7 +325,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             mat[j]=atoi(num);
             j++;
 
-            for(z=0; i<5; i++)
+            for(z=0; z<5; z++)
             {
                 num[z]=0;
             }
@@ -354,9 +354,9 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             num[numlen]='\0';
             mat[j]=atoi(num);
             j++;
-            for(int i=0; i<5; i++)
+            for(z=0; z<5; z++)
             {
-                num[i]=0;
+                num[z]=0;
             }
             numlen=0;
             m++;
