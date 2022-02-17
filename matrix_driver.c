@@ -42,6 +42,8 @@ static void __exit matrix_exit(void);
 static int matrix_remove(struct platform_device *pdev);
 void extract_matrix(char store_mat[50], int mat[50],int dim[]);
 int myAtoi(char* str);
+void myItoa(int num, char* str);
+void reverse(char s[]); 
 
 //*********************GLOBAL VARIABLES*************************************
 struct matrix_info {
@@ -61,6 +63,7 @@ int dimB[] = {0, 0};
 int matA[50], matB[50];
 char store_matA[50], store_matB[50];
 int cnt=0;
+int endRead =0;
 
 static struct file_operations my_fops =
   {
@@ -182,7 +185,7 @@ static int matrix_close(struct inode *i, struct file *f)
 static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t *off)
 {
 	int ret;
-	int len = 0;
+	int length = 0;
 	u32 led_val = 0;
 	int i = 0;
 	char buff[BUFF_SIZE];
@@ -195,14 +198,14 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	myItoa(led_val,buff);
 	
 	for (i = 0; buff[i] != '\0'; i++);
-    len = i;
+    length = i;
 	
-	ret = copy_to_user(buffer, buff, len);
+	ret = copy_to_user(buf, buff, length);
 	if(ret)
 	return -EFAULT;
 	printk(KERN_INFO "Succesfully read\n");
 	endRead = 1;
-	return len;
+	return length;
 
 }
 static ssize_t matrix_write(struct file *f, const char __user *buf, size_t length, loff_t *off)
@@ -330,25 +333,33 @@ int myAtoi(char* str)
     return res;
 }
 
-void myItoa(int num, char* str) 
-{
-    bool isNeg=false;
-    if(num < 0)
-      isNeg = true;
+void myItoa(int n, char s[])
+ {
+	 int i, sign;
 
-    int idx = 0;
-    do {
-       int j = num % 10;
-       j = j < 0 ? j * -1 : j ;
-       str[idx++]=j+48;
-       num=num/10;
-    } while (num!=0);
-    if(isNeg)
-       str[idx++]='-';
-    str[idx]='\0';
+	 if ((sign = n) < 0)  /* record sign */
+		 n = -n;          /* make n positive */
+	 i = 0;
+	 do {       /* generate digits in reverse order */
+		 s[i++] = n % 10 + '0';   /* get next digit */
+	 } while ((n /= 10) > 0);     /* delete it */
+	 if (sign < 0)
+		 s[i++] = '-';
+	 s[i] = '\0';
+	 reverse(s);
+ }
 
-    std::reverse(str, str+idx);
-}
+void reverse(char s[])
+ {
+     int i, j;
+     char c;
+ 
+     for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+         c = s[i];
+         s[i] = s[j];
+         s[j] = c;
+     }
+ }
 
 
 //***************************************************
