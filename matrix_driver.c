@@ -54,12 +54,13 @@ static dev_t my_dev_id;
 static struct class *my_class;
 static struct device *my_device;
 static int int_cnt;
-static struct matrix_info *vp = NULL;
+static struct matrix_info *vp[4] = NULL; //array of struct
 
 int dimA[] = {0, 0};
 int dimB[] = {0, 0};
 int matA[50], matB[50];
 char store_matA[50], store_matB[50];
+int cnt=0;
 
 static struct file_operations my_fops =
   {
@@ -98,6 +99,7 @@ static int matrix_probe(struct platform_device *pdev)
 {
   struct resource *r_mem;
   int rc = 0;
+  // for vp array
 
   printk(KERN_INFO "Probing\n");
   // Get phisical register adress space from device tree
@@ -107,35 +109,36 @@ static int matrix_probe(struct platform_device *pdev)
     return -ENODEV;
   }
   // Get memory for structure matrix_info
-  vp = (struct matrix_info *) kmalloc(sizeof(struct matrix_info), GFP_KERNEL);
-  if (!vp) {
+  vp[cnt] = (struct matrix_info *) kmalloc(sizeof(struct matrix_info), GFP_KERNEL);
+  if (!vp[cnt]) {
     printk(KERN_ALERT "matrix_probe: Could not allocate memory\n");
     return -ENOMEM;
   }
   // Put phisical adresses in timer_info structure
-  vp->mem_start = r_mem->start;
-  vp->mem_end = r_mem->end;
-  printk(KERN_INFO "matrix_probe: MEMORY LOCATION %p\n",(void *)vp->mem_start);  
+  vp[cnt]->mem_start = r_mem->start;
+  vp[cnt]->mem_end = r_mem->end;
+  printk(KERN_INFO "matrix_probe: MEMORY LOCATION %p\n",(void *)vp[cnt]->mem_start);  
   // Reserve that memory space for this driver
-  if (!request_mem_region(vp->mem_start,vp->mem_end - vp->mem_start + 1, DRIVER_NAME))
+  if (!request_mem_region(vp[cnt]->mem_start,vp[cnt]->mem_end - vp[cnt]->mem_start + 1, DRIVER_NAME))
   {
-    printk(KERN_ALERT "matrix_probe: Could not lock memory region at %p\n",(void *)vp->mem_start);
+    printk(KERN_ALERT "matrix_probe: Could not lock memory region at %p\n",(void *)vp[cnt]->mem_start);
     rc = -EBUSY;
     goto error1;
   }    
   // Remap phisical to virtual adresses
 
-  vp->base_addr = ioremap(vp->mem_start, vp->mem_end - vp->mem_start + 1);
-  if (!vp->base_addr) {
+  vp[cnt]->base_addr = ioremap(vp[cnt]->mem_start, vp[cnt]->mem_end - vp[cnt]->mem_start + 1);
+  if (!vp[cnt]->base_addr) {
     printk(KERN_ALERT "matrix_probe: Could not allocate memory\n");
     rc = -EIO;
     goto error2;
   }
 
   printk(KERN_NOTICE "matrix_probe: matrix platform driver registered\n");
+  cnt++;
   return 0;//ALL OK
  error2:
-  release_mem_region(vp->mem_start, vp->mem_end - vp->mem_start + 1);
+  release_mem_region(vp[cnt]->mem_start, vp[cnt]->mem_end - vp[cnt]->mem_start + 1);
  error1:
   return rc;
 
@@ -147,13 +150,13 @@ static int matrix_remove(struct platform_device *pdev)
   // Exit Device Module
   for (i = 0; i <= (32*49); i++) 
   { 
-    iowrite32(i*4, vp->base_addr + 8); 
-    iowrite32(0, vp->base_addr); 
+    iowrite32(i*4, vp[cnt]->base_addr + 8); 
+    iowrite32(0, vp[cnt]->base_addr); 
   } 
   printk(KERN_INFO "matrix_remove: matrix remove in process");
-  iounmap(vp->base_addr);
-  release_mem_region(vp->mem_start, (vp->mem_end - vp->mem_start + 1));
-  kfree(vp);
+  iounmap(vp[cnt]->base_addr);
+  release_mem_region(vp[cnt]->mem_start, (vp[cnt]->mem_end - vp[cnt]->mem_start + 1));
+  kfree(vp[cnt]);
   printk(KERN_INFO "matrix_remove: matrix driver removed");
   return 0;
 }
@@ -292,6 +295,15 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     }
 }
 
+int myAtoi(char* str)
+{
+    int res = 0;
+	int i;
+    for (i = 0; str[i] != '\0'; ++i)
+        res = res * 10 + str[i] - '0';
+    return res;
+}
+
 
 //***************************************************
 // INIT AND EXIT FUNCTIONS OF THE DRIVER
@@ -347,14 +359,7 @@ static int __init matrix_init(void)
   return -1;
 
 }
-
-int myAtoi(char* str)
-{
-    int res = 0;
-    for (int i = 0; str[i] != '\0'; ++i)
-        res = res * 10 + str[i] - '0';
-    return res;
-} 
+ 
 
 static void __exit matrix_exit(void)  		
 {
