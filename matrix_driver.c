@@ -237,6 +237,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		k++;
 		i++;
 	}
+	store_matA[k]='\0';
 	k = 0;
 	i++;
 	while(buff[i] != '\0'){
@@ -244,7 +245,8 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		k++;
 		i++;
 	}
-	printk(KERN_INFO "mat A %s \n",matA);
+	store_matB[k]='\0';
+	printk(KERN_INFO "mat A %s \n",store_matA);
 
     extract_matrix(store_matA, matA, dimA);
     extract_matrix(store_matB, matB, dimB);
