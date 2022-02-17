@@ -185,48 +185,23 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 {
 	int ret;
 	int length = 0;
-	int number[50];
+	int number;
 	int i, j, k=0;
 	char buff[BUFF_SIZE] = "[";
 	char temp[BUFF_SIZE];
-	int p_temp = p-1;
-	int n_temp = n-1;
+	
 	if (endRead)
 	{
 		endRead = 0;
 		return 0;
 	}
-	/*for(i=0;i<n*p;i++)
-	{
-		if(p_temp == 0) p_temp = p - 1;
-		if(n_temp == 0) n_temp = n - 1;
-		
-        if(p_temp)
-			strcat(buff,",");
-		
-        else if(p_temp == 0) {
-			strcat(buff,"]");
-			if(n_temp) { 
-				strcat(buff, ",");
-				n_temp--;
-			}
-			p_temp = p;
-		}
-        else
-			strcat(buff,",");
-
-		number[i] = ioread32(vp[2]->base_addr+4*i);
-		myItoa(number[i],temp);
-		strcat(buff,temp);
-		p_temp--;
-	}	*/
 	
 	for(i=0;i<n;i++)
 	{
 		strcat(buff,"[");
 		for(j=0;j<p;j++){
-			number[k] = ioread32(vp[2]->base_addr+4*k);
-			myItoa(number[k],temp);
+			number = ioread32(vp[2]->base_addr+4*k);
+			myItoa(number,temp);
 			strcat(buff,temp);
 			if(j != p-1)
 				strcat(buff,",");
