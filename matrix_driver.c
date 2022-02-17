@@ -306,28 +306,28 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 //***************************************************
 // HELPER FUNCTIONS (READ MATRIX)
 
-void extract_matrix(char store_mat[50], int mat[50],int dim[50])
+void extract_matrix(char store_mat[50], int mat[50],int dim[])
 {
     int i, j=0, k=0;
+    int z=0;
     int n=0, m=0;
     char num[5];
     int numlen=0;
-	int len;
-	
+
     for (i = 0; store_mat[i] != '\0'; i++);
-    len = i;
+    int len = i;
 
     for (i = 1; i<len-1; i++)
     {
         if(store_mat[i]==']')
         {
             num[numlen]='\0';
-            mat[j]=myAtoi(num);
+            mat[j]=atoi(num);
             j++;
 
-            for(i=0; i<5; i++)
+            for(z=0; i<5; i++)
             {
-                num[i]=0;
+                num[z]=0;
             }
             numlen=0;
             m++;
@@ -352,9 +352,9 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[50])
         if(store_mat[i]==',' && store_mat[i+1]!='[')
         {
             num[numlen]='\0';
-            mat[j]=myAtoi(num);
+            mat[j]=atoi(num);
             j++;
-            for(i=0; i<5; i++)
+            for(int i=0; i<5; i++)
             {
                 num[i]=0;
             }
@@ -372,7 +372,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[50])
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
         //printf("\nMaxDim : 7x7");
-        //return -1;
+       // return -1;
     }
     for(i=0; i<dim[0]*dim[1];i++){
          if(mat[i] > 4096){
