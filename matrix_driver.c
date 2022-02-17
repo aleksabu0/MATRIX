@@ -186,7 +186,7 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 {
 	int ret;
 	int length = 0;
-	u32 led_val = 0;
+	int number = 1234;
 	int i = 0;
 	char buff[BUFF_SIZE];
 	if (endRead)
@@ -194,8 +194,7 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 		endRead = 0;
 		return 0;
 	}
-	led_val = 1234;
-	myItoa(led_val,buff);
+	myItoa(number,buff);
 	
 	for (i = 0; buff[i] != '\0'; i++);
     length = i;
@@ -353,8 +352,12 @@ void reverse(char s[])
  {
      int i, j;
      char c;
- 
-     for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+	 int s_len;
+		
+	for (i = 0; s[i] != '\0'; i++);
+    s_len = i;	
+	
+     for (i = 0, j = s_len-1; i<j; i++, j--) {
          c = s[i];
          s[i] = s[j];
          s[j] = c;
