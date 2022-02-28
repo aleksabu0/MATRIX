@@ -154,11 +154,20 @@ static int matrix_remove(struct platform_device *pdev)
 {
   int i = 0;
   // Exit Device Module
-  for (i = 0; i <= (32*49); i++) 
-  { 
-    iowrite32(i*4, vp[cnt]->base_addr + 8); 
-    iowrite32(0, vp[cnt]->base_addr); 
-  } 
+  if(cnt!=3)
+  {
+	  for (i = 0; i < 49; i++) 
+	  { 
+		iowrite32(0,vp[cnt]->base_addr+4*i); 
+	  } 
+  }
+  else
+  {
+	for (i = 0; i < 5; i++) 
+	  { 
+		iowrite32(0,vp[cnt]->base_addr+4*i); 
+	  }  
+  }
   printk(KERN_INFO "matrix_remove: matrix remove in process");
   iounmap(vp[cnt]->base_addr);
   release_mem_region(vp[cnt]->mem_start, (vp[cnt]->mem_end - vp[cnt]->mem_start + 1));
