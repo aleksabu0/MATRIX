@@ -40,7 +40,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 static int __init matrix_init(void);
 static void __exit matrix_exit(void);
 static int matrix_remove(struct platform_device *pdev);
-int strCmp(const char* s1, const char* s2)
+int my_strcmp(const char* s1, const char* s2)
 void extract_matrix(char store_mat[50], int mat[50],int dim[50]);
 int myAtoi(char* str);
 void myItoa(int num, char* str);
@@ -429,17 +429,17 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			char str1[BUFF_SIZE]="start=1";
 			char str2[BUFF_SIZE]="start=0";
 			char str3[BUFF_SIZE]="start=trigger";
-			if(!strcmp(str1,buff))
+			if(!my_strcmp(str1,buff))
 			{
 				printk("Start = 1 \n");
 				iowrite32(1, vp[3]->base_addr+4*1);
 			}
-			else if(!strcmp(str2,buff))
+			else if(!my_strcmp(str2,buff))
 			{
 				printk("Start = 0\n");
 				iowrite32(0, vp[3]->base_addr+4*1);
 			}
-			else if(!strcmp(str3,buff))
+			else if(!my_strcmp(str3,buff))
 			{
 				iowrite32(1, vp[3]->base_addr+4*1);
 				for(i=0; i<100;i++);
@@ -596,7 +596,7 @@ void myItoa(int n, char s[])
 	 reverse(s);
  }
  
- int strCmp(const char* s1, const char* s2)
+ int my_strcmp(const char* s1, const char* s2)
 {
     while(*s1 && (*s1 == *s2))
     {
