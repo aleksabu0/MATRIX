@@ -61,9 +61,9 @@ static struct matrix_info *vp[4] ;//= NULL; //array of struct
 
 int cnt=0;
 int endRead =0;
-int n = 0;
-int m = 0;
-int p = 0;
+int n_glob = 0;
+int m_glob = 0;
+int p_glob = 0;
 int na = 0;
 int ma = 0;
 int mb = 0;
@@ -205,11 +205,11 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	char temp[BUFF_SIZE];
 	int minor = MINOR(f->f_inode->i_rdev);
 	//printk("Minor broj %d\n",minor);
-	if(minor==0 || minor==1)
+	/*if(minor==0 || minor==1)
 	{
 		printk("Citanje samo iz bram_c\n");
 		return -EFAULT;
-	}
+	}*/
 	
 	
 	if (endRead)
@@ -219,18 +219,19 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	}
 	if(minor==2)
 	{
-		for(i=0;i<n;i++)
+		printk("ispis bram_c");
+		for(i=0;i<n_glob;i++)
 		{
-			for(j=0;j<p;j++){
+			for(j=0;j<p_glob;j++){
 				number = ioread32(vp[2]->base_addr+4*k);
 				myItoa(number,temp);
 				strcat(buff,temp);
-				if(j != p-1)
+				if(j != p_glob-1)
 					strcat(buff,",");
 				k++;
 			}
 			strcat(buff,";");
-			if(i != n-1)
+			if(i != n_glob-1)
 				strcat(buff,",");
 		}	
 	}
@@ -388,18 +389,18 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			
 			if(casem==1)
 			{
-				n=temp_numb;
-				if(n!=na)
+				n_glob=temp_numb;
+				if(n_glob!=na)
 				{
-					printk("Pogresne dimenzije\n");
+					printk("Pogresne dimenzije unosa\n");
 					return -EFAULT;
 				}
-				iowrite32(n, vp[3]->base_addr+4*2);
+				iowrite32(n_glob, vp[3]->base_addr+4*2);
 			}
 			if(casem==2)
 			{
-				m=temp_numb;
-				if(m!=ma)
+				m_glob=temp_numb;
+				if(m_glob!=ma)
 				{
 					printk("Pogresne dimenzije unosa\n");
 					return -EFAULT;
@@ -409,28 +410,29 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 					printk("Dimenzije (m) matrica A i B se ne poklapaju\n");
 					return -EFAULT;
 				}
-				iowrite32(m, vp[3]->base_addr+4*3);
+				iowrite32(m_glob, vp[3]->base_addr+4*3);
 			}
 			if(casem==3)
 			{
 				p=temp_numb;
-				if(p!=pb)
+				if(p_glob!=pb)
 				{
 					printk("Pogresne dimenzije unosa\n");
 					return -EFAULT;
 				}		
-				iowrite32(p, vp[3]->base_addr+4*4);
+				iowrite32(p_glob, vp[3]->base_addr+4*4);
 			}		
 		}
 		//Varijanta 2 - postavljanje start-a
 		else
 		{
 			printk("Unos za start\n");
-			for (i = 0; buff[i] != '\0'; i++)
-			{
+			for (i = 0; buff[i] != '\0'; i++);
+			/*{
 				printk("%c",buff[i]);
 			}
-			printk("\n");
+			printk("kraj");*/
+			buff[i-1]='\0';
 			char str1[BUFF_SIZE]="start=1";
 			char str2[BUFF_SIZE]="start=0";
 			char str3[BUFF_SIZE]="start=trigger";
