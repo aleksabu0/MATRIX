@@ -290,6 +290,8 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		
 		if(minor==0)
 		{	
+			na = dimA[0];
+			ma = dimA[1];
 			for(i=0;i<dimA[0]*dimA[1];i++)
 			{
 				iowrite32(matA[i], vp[0]->base_addr+4*i);
@@ -298,6 +300,8 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		
 		if(minor==1)
 		{	
+			mb = dimA[0];
+			pb = dimA[1];
 			for(i=0;i<dimA[0]*dimA[1];i++)
 			{
 				iowrite32(matA[i], vp[1]->base_addr+4*i);
@@ -350,6 +354,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			}
 			num[numlen]='\0';
             int temp_numb=myAtoi(num);
+			printk("unet broj %d\n",temp_numb);
 			
 			if(casem==1)
 			{
