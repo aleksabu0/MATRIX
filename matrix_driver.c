@@ -283,9 +283,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
   char store_matA[50], store_matB[50];
   int ret = 0;
   int i = 0, k = 0;
-  n = 0;
-  m = 0;
-  p = 0;
+ 
 
 	//git clone https://github.com/aleksabu0/MATRIX
 	//echo "[[10,2],[3,4]]*[[3,2],[3,4]]" > /dev/matmul
@@ -414,7 +412,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			}
 			if(casem==3)
 			{
-				p=temp_numb;
+				p_glob=temp_numb;
 				if(p_glob!=pb)
 				{
 					printk("Pogresne dimenzije unosa\n");
