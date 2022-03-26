@@ -40,7 +40,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 static int __init matrix_init(void);
 static void __exit matrix_exit(void);
 static int matrix_remove(struct platform_device *pdev);
-int my_strcmp(const char* s1, const char* s2)
+int my_strcmp(const char* s1, const char* s2);
 void extract_matrix(char store_mat[50], int mat[50],int dim[50]);
 int myAtoi(char* str);
 void myItoa(int num, char* str);
@@ -596,20 +596,14 @@ void myItoa(int n, char s[])
 	 reverse(s);
  }
  
- int my_strcmp(char string1[], char string2[] )
+ int my_strcmp(const char* s1, const char* s2)
 {
-    for (int i = 0; ; i++)
+    while(*s1 && (*s1 == *s2))
     {
-        if (string1[i] != string2[i])
-        {
-            return string1[i] < string2[i] ? -1 : 1;
-        }
-
-        if (string1[i] == '\0')
-        {
-            return 0;
-        }
+        s1++;
+        s2++;
     }
+    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
 void reverse(char s[])
