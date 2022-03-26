@@ -200,10 +200,10 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	int length = 0;
 	int number;
 	int i, j, k=0;
-	char buff[BUFF_SIZE] = "[\0";
+	char buff[BUFF_SIZE];
 	char temp[BUFF_SIZE];
 	int minor = MINOR(f->f_inode->i_rdev);
-	if(minor!=2)
+	if(minor!=2 || minor!=3)
 	{
 		printk("Citanje samo iz bram_c\n");
 		return -EFAULT;
@@ -215,22 +215,51 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 		endRead = 0;
 		return 0;
 	}
-	
-	for(i=0;i<n;i++)
+	if(minor==2)
 	{
-		for(j=0;j<p;j++){
-			number = ioread32(vp[2]->base_addr+4*k);
-			myItoa(number,temp);
-			strcat(buff,temp);
-			if(j != p-1)
+		for(i=0;i<n;i++)
+		{
+			for(j=0;j<p;j++){
+				number = ioread32(vp[2]->base_addr+4*k);
+				myItoa(number,temp);
+				strcat(buff,temp);
+				if(j != p-1)
+					strcat(buff,",");
+				k++;
+			}
+			strcat(buff,";");
+			if(i != n-1)
 				strcat(buff,",");
-			k++;
-		}
-		strcat(buff,";");
-		if(i != n-1)
-			strcat(buff,",");
-	}	
-	
+		}	
+	}
+	else
+	{
+		strcat(buff,"ready=");
+		number = ioread32(vp[3]->base_addr);
+		myItoa(number,temp);
+		strcat(buff,temp);
+		
+		strcat(buff,";start=");
+		number = ioread32(vp[3]->base_addr+4*1);
+		myItoa(number,temp);
+		strcat(buff,temp);
+		
+		strcat(buff,";n=");
+		number = ioread32(vp[3]->base_addr+4*2);
+		myItoa(number,temp);
+		strcat(buff,temp);
+		
+		strcat(buff,";m=");
+		number = ioread32(vp[3]->base_addr+4*3);
+		myItoa(number,temp);
+		strcat(buff,temp);
+		
+		strcat(buff,";p=");
+		number = ioread32(vp[3]->base_addr+4*4);
+		myItoa(number,temp);
+		strcat(buff,temp);
+		
+	}
 	for (i = 0; buff[i] != '\0'; i++);
     length = i;
 	
