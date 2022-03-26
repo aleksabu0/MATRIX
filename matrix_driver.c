@@ -472,7 +472,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     for (i = 0; store_mat[i] != '\0'; i++);
     len = i;
 
-    for (i = 0; i<len; i++)
+    for (i = 0; i<len-1; i++)
     {
         if(store_mat[i]==';')
         {
@@ -498,19 +498,6 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             }
             m=0;
         }
-
-        if(store_mat[i]==',')
-        {
-            num[numlen]='\0';
-            mat[j]=myAtoi(num);
-            j++;
-            for(z=0; z<5; z++)
-            {
-                num[z]=0;
-            }
-            numlen=0;
-            m++;
-        }
 		
 		if(store_mat[i]=='\0')
         {
@@ -533,6 +520,9 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
         }
 		
     }
+	//j++;
+	mat[j]=myAtoi(num);
+	dim[1]++;
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
         //printf("\nMaxDim : 7x7");
