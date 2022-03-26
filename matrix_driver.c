@@ -592,7 +592,7 @@ static int __init matrix_init(void)
     goto fail_0;
   }
   printk(KERN_INFO "Succ class chardev1 create!.\n");
-  //my_device = device_create(my_class, NULL, MKDEV(MAJOR(my_dev_id),0), NULL, "matmul");
+  //my_device = device_create(my_class, NULL, MKDEV(MINOR(my_dev_id),0), NULL, "matmul");
   for (i = 0; i < num_of_minors; i++)
   {
     printk(KERN_INFO "created nod %d\n", i);
@@ -613,7 +613,7 @@ static int __init matrix_init(void)
 	{
 		scnprintf(buff, 11, "matmul");
 	}	
-    my_device = device_create(my_class, NULL, MKDEV(MAJOR(my_dev_id), i), NULL, buff);
+    my_device = device_create(my_class, NULL, MKDEV(MINOR(my_dev_id), i), NULL, buff);
     if (my_device == NULL){
       printk(KERN_ERR "failed to create device\n");
       goto fail_1;
@@ -636,7 +636,7 @@ static int __init matrix_init(void)
   return platform_driver_register(&matrix_driver);
 
  fail_2:
-  device_destroy(my_class, MKDEV(MAJOR(my_dev_id),0));
+  device_destroy(my_class, MKDEV(MINOR(my_dev_id),0));
  fail_1:
   class_destroy(my_class);
  fail_0:
@@ -653,7 +653,7 @@ static void __exit matrix_exit(void)
 	cdev_del(my_cdev);
 	for (i = 0; i < num_of_minors; i++)
 	{
-		device_destroy(my_class, MKDEV(MAJOR(my_dev_id), i));
+		device_destroy(my_class, MKDEV(MINOR(my_dev_id), i));
 	}
 	class_destroy(my_class);
 	unregister_chrdev_region(my_dev_id, 1);
