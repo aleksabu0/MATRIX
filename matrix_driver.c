@@ -280,6 +280,13 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		printk(KERN_INFO "Starting extraction\n");
 		extract_matrix(store_matA, matA, dimA);	 
 		printk(KERN_INFO "Ended extraction\n");
+		printk(KERN_INFO "Matrica ");
+		for(i=0;i<dimA[0]*dimA[1];i++)
+		{
+			printk(KERN_INFO "Matrica %d",matA[i]);
+		}
+		printk(KERN_INFO "\n");
+		printk(KERN_INFO "Dimenzije %d %d \n",dimA[0],dimA[1]);
 		
 		if(minor==0)
 		{	
@@ -457,7 +464,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
 {
     int i, j=0, k=0;
     int z=0;
-    int n=0, m=0;
+    int n=1, m=0;
     char num[5];
     int numlen=0;
 	int len;
