@@ -200,10 +200,11 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	int length = 0;
 	int number;
 	int i, j, k=0;
-	char buff[BUFF_SIZE];
+	char buff[BUFF_SIZE]="\0";
 	char temp[BUFF_SIZE];
 	int minor = MINOR(f->f_inode->i_rdev);
-	if(minor!=2 || minor!=3)
+	//printk("Minor broj %d\n",minor);
+	if(minor==0 || minor==1)
 	{
 		printk("Citanje samo iz bram_c\n");
 		return -EFAULT;
@@ -427,15 +428,15 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			char str1[]="start=1";
 			char str2[]="start=0";
 			char str3[]="start=trigger";
-			if(strcmp(str1,buff))
+			if(!strcmp(str1,buff))
 			{
 				iowrite32(1, vp[3]->base_addr+4*1);
 			}
-			else if(strcmp(str2,buff))
+			else if(!strcmp(str2,buff))
 			{
 				iowrite32(0, vp[3]->base_addr+4*1);
 			}
-			else if(strcmp(str3,buff))
+			else if(!strcmp(str3,buff))
 			{
 				iowrite32(1, vp[3]->base_addr+4*1);
 				for(i=0; i<100;i++);
