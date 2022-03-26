@@ -349,7 +349,6 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	{
 		for (i = 0; buff[i] != '\0'; i++);
 		int len = i;
-		
 		int casem=0;
 		//Varijanta 1 - ako je unos za n/m/p
 		if(buff[0]=='n')
@@ -425,15 +424,18 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		//Varijanta 2 - postavljanje start-a
 		else
 		{
-			char str1[]="start=1";
-			char str2[]="start=0";
-			char str3[]="start=trigger";
+			printk("Unos za start\n");
+			char str1[BUFF_SIZE]="start=1";
+			char str2[BUFF_SIZE]="start=0";
+			char str3[BUFF_SIZE]="start=trigger";
 			if(!strcmp(str1,buff))
 			{
+				printk("Start = 1 \n");
 				iowrite32(1, vp[3]->base_addr+4*1);
 			}
 			else if(!strcmp(str2,buff))
 			{
+				printk("Start = 0\n");
 				iowrite32(0, vp[3]->base_addr+4*1);
 			}
 			else if(!strcmp(str3,buff))
