@@ -426,6 +426,11 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		else
 		{
 			printk("Unos za start\n");
+			for (i = 0; buff[i] != '\0'; i++)
+			{
+				printk("%c",buff[i]);
+			}
+			printk("\n");
 			char str1[BUFF_SIZE]="start=1";
 			char str2[BUFF_SIZE]="start=0";
 			char str3[BUFF_SIZE]="start=trigger";
