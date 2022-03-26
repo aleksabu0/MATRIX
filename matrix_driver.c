@@ -464,7 +464,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
 {
     int i, j=0, k=0;
     int z=0;
-    int n=1, m=0;
+    int n=0, m=0;
     char num[5];
     int numlen=0;
 	int len;
@@ -472,7 +472,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     for (i = 0; store_mat[i] != '\0'; i++);
     len = i;
 
-    for (i = 0; i<len-1; i++)
+    for (i = 0; i<len; i++)
     {
         if(store_mat[i]==';')
         {
@@ -511,12 +511,27 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             numlen=0;
             m++;
         }
+		
+		if(store_mat[i]=='\0')
+        {
+            num[numlen]='\0';
+            mat[j]=myAtoi(num);
+            j++;
+            for(z=0; z<5; z++)
+            {
+                num[z]=0;
+            }
+            numlen=0;
+            n++;
+			break;
+        }
 
         if(store_mat[i] >= 48 && store_mat[i] <= 57)
         {
             num[numlen]=store_mat[i];
             numlen++;
         }
+		
     }
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
