@@ -24,11 +24,11 @@
 
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Driver for matrix ouvput");
+MODULE_DESCRIPTION("Driver for matrix output");
 #define DEVICE_NAME "matrix"
 #define DRIVER_NAME "matrix_driver"
 #define BUFF_SIZE 200
-
+#define num_of_minors 4
 
 //*******************FUNCTION PROTOTYPES************************************
 
@@ -63,6 +63,10 @@ int endRead =0;
 int n = 0;
 int m = 0;
 int p = 0;
+int na = 0;
+int ma = 0;
+int mb = 0;
+int pb = 0;
 
 static struct file_operations my_fops =
   {
@@ -198,6 +202,13 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	int i, j, k=0;
 	char buff[BUFF_SIZE] = "[\0";
 	char temp[BUFF_SIZE];
+	int minor = MINOR(pfile->f_inode->i_rdev);
+	if(minor!=2)
+	{
+		printk("Citanje samo iz bram_c\n");
+		return -EFAULT;
+	}
+	
 	
 	if (endRead)
 	{
@@ -207,7 +218,6 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	
 	for(i=0;i<n;i++)
 	{
-		strcat(buff,"[");
 		for(j=0;j<p;j++){
 			number = ioread32(vp[2]->base_addr+4*k);
 			myItoa(number,temp);
@@ -216,12 +226,11 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 				strcat(buff,",");
 			k++;
 		}
-		strcat(buff,"]");
+		strcat(buff,";");
 		if(i != n-1)
 			strcat(buff,",");
 	}	
 	
-	strcat(buff, "]\0");
 	for (i = 0; buff[i] != '\0'; i++);
     length = i;
 	
@@ -249,41 +258,156 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	//git clone https://github.com/aleksabu0/MATRIX
 	//echo "[[10,2],[3,4]]*[[3,2],[3,4]]" > /dev/matmul
 	//echo "[[3,3,3],[3,3,3],[3,3,3]]*[[3,3,3],[3,3,3],[3,3,3]]" > /dev/matmul
+  int minor = MINOR(pfile->f_inode->i_rdev); 
   ret = copy_from_user(buff, buf, length);  
   if(ret){
     printk("copy from user failed \n");
     return -EFAULT;
   }  
     buff[length] = '\0';
+	
+	if(minor==0 || minor ==1)
+	{
+		while(buff[i] != '\0')
+		{
+			store_matA[k] = buff[i];
+			k++;
+			i++;
+		}
+		store_matA[k]='\0';
+		
+		printk(KERN_INFO "mat A %s \n",store_matA);		
+		printk(KERN_INFO "Starting extraction\n");
+		extract_matrix(store_matA, matA, dimA);	 
+		printk(KERN_INFO "Ended extraction\n");
+		
+		if(minor==0)
+		{	
+			for(i=0;i<dimA[0]*dimA[1];i++)
+			{
+				iowrite32(matA[i], vp[0]->base_addr+4*i);
+			}	
+		}
+		
+		if(minor==1)
+		{	
+			for(i=0;i<dimA[0]*dimA[1];i++)
+			{
+				iowrite32(matA[i], vp[1]->base_addr+4*i);
+			}	
+		}
+	}
+
+	else if(minor==2)
+	{
+		printk("Zabranjen unos u bram_c\n");
+		return -EFAULT;
+	}
+	
+	else if(minor==3)
+	{
+		for (i = 0; buff[i] != '\0'; i++);
+		int len = i;
+		
+		int casem=0;
+		//Varijanta 1 - ako je unos za n/m/p
+		if(buff[0]=='n')
+		{
+			casem=1;
+		}
+		else if(buff[0]=='m')
+		{
+			casem=2;
+		}
+		else if(buff[0]=='p')
+		{
+			casem=3;
+		}
+		
+		if(buff[1]!='=' && casem!=0)
+		{
+			printk("Pogresan format\n");
+			return -EFAULT;
+		}
+		if(casem!=0)
+		{	char num[5];
+			int numlen=0;
+			for (i = 2; i<len-1; i++)
+			{
+				 if(buff[i] >= 48 && buff[i] <= 57)
+				{
+					
+					num[numlen]=buff[i];
+					numlen++;
+				}	
+			}
+			num[numlen]='\0';
+            int temp_numb=myAtoi(num);
+			
+			if(casem==1)
+			{
+				n=temp_numb;
+				if(n!=na)
+				{
+					printk("Pogresne dimenzije\n");
+					return -EFAULT;
+				}
+				iowrite32(n, vp[3]->base_addr+4*2);
+			}
+			if(casem==2)
+			{
+				m=temp_numb;
+				if(m!=ma)
+				{
+					printk("Pogresne dimenzije unosa\n");
+					return -EFAULT;
+				}
+				if(ma!=mb)
+				{
+					printk("Dimenzije (m) matrica A i B se ne poklapaju\n");
+					return -EFAULT;
+				}
+				iowrite32(m, vp[3]->base_addr+4*3);
+			}
+			if(casem==3)
+			{
+				p=temp_numb;
+				if(p!=pb)
+				{
+					printk("Pogresne dimenzije unosa\n");
+					return -EFAULT;
+				}		
+				iowrite32(p, vp[3]->base_addr+4*4);
+			}		
+		}
+		//Varijanta 2 - postavljanje start-a
+		else
+		{
+			char str1[]="start=1";
+			char str2[]="start=0";
+			char str3[]="start=trigger";
+			if(strcmp(str1,buff))
+			{
+				iowrite32(1, vp[3]->base_addr+4*1);
+			}
+			else if(strcmp(str2,buff))
+			{
+				iowrite32(0, vp[3]->base_addr+4*1);
+			}
+			else if(strcmp(str3,buff))
+			{
+				iowrite32(1, vp[3]->base_addr+4*1);
+				for(i=0; i<100;i++);
+				iowrite32(0, vp[3]->base_addr+4*1);
+			}	
+		}
+	}
   
     //sscanf(buff, "%[^*]*%s" , store_matA, store_matB);
 	
-	while(buff[i] != '*'){
-		store_matA[k] = buff[i];
-		k++;
-		i++;
-	}
-	store_matA[k]='\0';
-	k = 0;
-	i++;
-	while(buff[i] != '\0'){
-		store_matB[k] = buff[i];
-		k++;
-		i++;
-	}
-	store_matB[k]='\0';
-	printk(KERN_INFO "mat A %s \n",store_matA);
 	
-	printk(KERN_INFO "Starting extraction\n");
-    extract_matrix(store_matA, matA, dimA);
-    extract_matrix(store_matB, matB, dimB);
-	printk(KERN_INFO "Ended extraction\n");
-    if(dimA[1] != dimB[0]){
-        printk(KERN_INFO "\nError: DiffDim\n");
-        //return -1;
-    }
 
-	n = dimA[0];
+	/*n = dimA[0];
 	m = dimA[1];
 	p = dimB[1];
 	
@@ -305,7 +429,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	for(i=0; i<100;i++);
 	iowrite32(0, vp[3]->base_addr+4*1);
 	
-	while(ioread32(vp[3]->base_addr+4*0)!=1);
+	while(ioread32(vp[3]->base_addr+4*0)!=1);*/
 	
 	
 
@@ -341,14 +465,14 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     for (i = 0; store_mat[i] != '\0'; i++);
     len = i;
 
-    for (i = 1; i<len-1; i++)
+    for (i = 0; i<len-1; i++)
     {
-        if(store_mat[i]==']')
+        if(store_mat[i]==';')
         {
             num[numlen]='\0';
             mat[j]=myAtoi(num);
             j++;
-
+			n++;
             for(z=0; z<5; z++)
             {
                 num[z]=0;
@@ -368,12 +492,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             m=0;
         }
 
-        if(store_mat[i]=='[')
-        {
-            n++;
-        }
-
-        if(store_mat[i]==',' && store_mat[i+1]!='[')
+        if(store_mat[i]==',')
         {
             num[numlen]='\0';
             mat[j]=myAtoi(num);
@@ -384,7 +503,6 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             }
             numlen=0;
             m++;
-
         }
 
         if(store_mat[i] >= 48 && store_mat[i] <= 57)
@@ -457,9 +575,10 @@ static int __init matrix_init(void)
 
   int ret = 0;
   int_cnt = 0;
-
+  char buff[11];
+  
   printk(KERN_INFO "matrix_init: Initialize Module \"%s\"\n", DEVICE_NAME);
-  ret = alloc_chrdev_region(&my_dev_id, 0, 1, "matrix_region");
+  ret = alloc_chrdev_region(&my_dev_id, 0, num_of_minors, "matrix_region");
   if (ret)
   {
     printk(KERN_ALERT "<1>Failed CHRDEV!.\n");
@@ -473,10 +592,32 @@ static int __init matrix_init(void)
     goto fail_0;
   }
   printk(KERN_INFO "Succ class chardev1 create!.\n");
-  my_device = device_create(my_class, NULL, MKDEV(MAJOR(my_dev_id),0), NULL, "matmul");
-  if (my_device == NULL)
+  //my_device = device_create(my_class, NULL, MKDEV(MAJOR(my_dev_id),0), NULL, "matmul");
+  for (i = 0; i < num_of_minors; i++)
   {
-    goto fail_1;
+    printk(KERN_INFO "created nod %d\n", i);
+	//ime za node
+	if(i==0)
+	{	
+		scnprintf(buff, 11, "bram_a");
+	}
+	else if(i==1)
+	{
+		scnprintf(buff, 11, "bram_b");
+	}
+	else if(i==2)
+	{
+		scnprintf(buff, 11, "bram_c");
+	}
+	else if(i==3)
+	{
+		scnprintf(buff, 11, "matmul");
+	}	
+    my_device = device_create(my_class, NULL, MKDEV(MAJOR(my_dev_id), i), NULL, buff);
+    if (my_device == NULL){
+      printk(KERN_ERR "failed to create device\n");
+      goto fail_1;
+    }
   }
 
   printk(KERN_INFO "Device created.\n");
@@ -507,13 +648,16 @@ static int __init matrix_init(void)
 
 static void __exit matrix_exit(void)  		
 {
-
-  platform_driver_unregister(&matrix_driver);
-  cdev_del(my_cdev);
-  device_destroy(my_class, MKDEV(MAJOR(my_dev_id),0));
-  class_destroy(my_class);
-  unregister_chrdev_region(my_dev_id, 1);
-  printk(KERN_INFO "matrix_exit: Exit Device Module \"%s\".\n", DEVICE_NAME);
+	int i = 0;
+	platform_driver_unregister(&matrix_driver);
+	cdev_del(my_cdev);
+	for (i = 0; i < num_of_minors; i++)
+	{
+		device_destroy(my_class, MKDEV(MAJOR(my_dev_id), i));
+	}
+	class_destroy(my_class);
+	unregister_chrdev_region(my_dev_id, 1);
+	printk(KERN_INFO "matrix_exit: Exit Device Module \"%s\".\n", DEVICE_NAME);
 }
 
 module_init(matrix_init);
