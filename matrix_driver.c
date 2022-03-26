@@ -472,7 +472,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     for (i = 0; store_mat[i] != '\0'; i++);
     len = i;
 
-    for (i = 0; i<len-1; i++)
+    for (i = 0; i<len; i++)
     {
         if(store_mat[i]==';')
         {
@@ -520,8 +520,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
 		
     }
 	mat[j]=myAtoi(num);
-	dim[1]++;
-    dim[0]=n;
+    dim[0]=n+1;
     if(dim[0] > 7 || dim[1] > 7){
         printk(KERN_INFO "\nMaxDim : 7x7");
         return -EFAULT;
