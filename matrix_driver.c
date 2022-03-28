@@ -208,17 +208,24 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	/*if(minor==0 || minor==1)
 	{
 		printk("Citanje samo iz bram_c\n");
-		return -EFAULT;
+		return -EPERM;
 	}*/
-	
 	
 	if (endRead)
 	{
 		endRead = 0;
 		return 0;
 	}
+	//citanje iz bramC
 	if(minor==2)
 	{
+		//ako jos uvek nije ready=1
+		if(ioread32(vp[3]->base_addr+4*0)!=1)
+		{
+			printk("BUSY\n");
+			return -EAGAIN;		
+		}
+		
 		printk("ispis bram_c");
 		for(i=0;i<n_glob;i++)
 		{
@@ -235,6 +242,7 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 				strcat(buff,",");
 		}	
 	}
+	//citanje iz matmul
 	else
 	{
 		strcat(buff,"ready=");
@@ -278,9 +286,8 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 {	
   char buff[BUFF_SIZE];
   int dimA[] = {0, 0};
-  int dimB[] = {0, 0};
-  int matA[50], matB[50];
-  char store_matA[50], store_matB[50];
+  int matA[50];
+  char store_matA[50];
   int ret = 0;
   int i = 0, k = 0;
  
@@ -318,6 +325,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		printk(KERN_INFO "\n");
 		printk(KERN_INFO "Dimenzije %d %d \n",dimA[0],dimA[1]);
 		
+		//upis u bramA
 		if(minor==0)
 		{	
 			na = dimA[0];
@@ -328,6 +336,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			}	
 		}
 		
+		//upis u bramB
 		if(minor==1)
 		{	
 			mb = dimA[0];
@@ -350,6 +359,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		for (i = 0; buff[i] != '\0'; i++);
 		int len = i;
 		int casem=0;
+		
 		//Varijanta 1 - ako je unos za n/m/p
 		if(buff[0]=='n')
 		{
@@ -383,40 +393,42 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			}
 			num[numlen]='\0';
             int temp_numb=myAtoi(num);
-			printk("unet broj %d\n",temp_numb);
-			
+			printk("unet broj %d\n",temp_numb);		
+			//slucaj unos n
 			if(casem==1)
 			{
 				n_glob=temp_numb;
 				if(n_glob!=na)
 				{
 					printk("Pogresne dimenzije unosa\n");
-					return -EFAULT;
+					return -EINVAL;
 				}
 				iowrite32(n_glob, vp[3]->base_addr+4*2);
 			}
+			//slucaj unos m
 			if(casem==2)
 			{
 				m_glob=temp_numb;
 				if(m_glob!=ma)
 				{
 					printk("Pogresne dimenzije unosa\n");
-					return -EFAULT;
+					return -EINVAL;
 				}
 				if(ma!=mb)
 				{
 					printk("Dimenzije (m) matrica A i B se ne poklapaju\n");
-					return -EFAULT;
+					return -EINVAL;
 				}
 				iowrite32(m_glob, vp[3]->base_addr+4*3);
 			}
+			//slucaj unos p
 			if(casem==3)
 			{
 				p_glob=temp_numb;
 				if(p_glob!=pb)
 				{
 					printk("Pogresne dimenzije unosa\n");
-					return -EFAULT;
+					return -EINVAL;
 				}		
 				iowrite32(p_glob, vp[3]->base_addr+4*4);
 			}		
@@ -451,58 +463,14 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 				iowrite32(0, vp[3]->base_addr+4*1);
 			}	
 		}
-	}
-  
-    //sscanf(buff, "%[^*]*%s" , store_matA, store_matB);
-	
-	
-
-	/*n = dimA[0];
-	m = dimA[1];
-	p = dimB[1];
-	
-	for(i=0;i<dimA[0]*dimA[1];i++)
-	{
-		iowrite32(matA[i], vp[0]->base_addr+4*i);
-	}
-
-	for(i=0;i<dimB[0]*dimB[1];i++)
-	{
-		iowrite32(matB[i], vp[1]->base_addr+4*i);
-	}
-	
-	iowrite32(n, vp[3]->base_addr+4*2);
-	iowrite32(m, vp[3]->base_addr+4*3);
-	iowrite32(p, vp[3]->base_addr+4*4);
-	
-	iowrite32(1, vp[3]->base_addr+4*1);
-	for(i=0; i<100;i++);
-	iowrite32(0, vp[3]->base_addr+4*1);
-	
-	while(ioread32(vp[3]->base_addr+4*0)!=1);*/
-	
-	
-
-	
-    //printf("\ndimA: %dx%d", dimA[0],dimA[1]);
-    //printf("\ndimB: %dx%d", dimB[0],dimB[1]);
- 
-  //if(ret != -EINVAL)//checking for parsing error
-  //{
-   // iowrite32((256*ypos + xpos)*4, vp->base_addr + 8);
-    //iowrite32(rgb, vp->base_addr);         
-  //}
-  /*else
-  {
-    printk(KERN_WARNING "matrix_write: Wrong write format, expected \"xpos,ypos,rgb\"\n");
-    // return -EINVAL;//parsing error
-  }  */      
+	}    
   return length;
 }
 
 //***************************************************
 // HELPER FUNCTIONS (READ MATRIX)
 
+//pomocna funkcija za ektrakciju matrice iz unosa
 void extract_matrix(char store_mat[50], int mat[50],int dim[])
 {
     int i, j=0, k=0;
@@ -536,8 +504,8 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             }
             if(m != dim[1])
             {
-                //printf("\nError!\n");
-                //return -1;
+                printk("\nLOS UNOS\n");
+                return -EINVAL;
             }
             m=0;
         }
@@ -566,16 +534,17 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     dim[0]=n+1;
     if(dim[0] > 7 || dim[1] > 7){
         printk(KERN_INFO "\nMaxDim : 7x7");
-        return -EFAULT;
+        return -EINVAL;
     }
     for(i=0; i<dim[0]*dim[1];i++){
          if(mat[i] > 4096){
             printk(KERN_INFO "\nMaxNum : 4096");
-            return -EFAULT;
+            return -EINVAL;
          }
     }
 }
 
+//pomocna funkcija za konverziju integera u string
 int myAtoi(char* str)
 {
     int res = 0;
@@ -585,6 +554,7 @@ int myAtoi(char* str)
     return res;
 }
 
+//pomocna funkcija za konverziju stringa u integer
 void myItoa(int n, char s[])
  {
 	 int i, sign;
@@ -601,6 +571,7 @@ void myItoa(int n, char s[])
 	 reverse(s);
  }
  
+ //pomocna funkcija poredjenje stringova
  int my_strcmp(const char* s1, const char* s2)
 {
     while(*s1 && (*s1 == *s2))
@@ -611,6 +582,7 @@ void myItoa(int n, char s[])
     return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
+//pomocna funkcija za myItoa
 void reverse(char s[])
  {
      int i, j;
