@@ -199,6 +199,12 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	char buff[BUFF_SIZE] = "[\0";
 	char temp[BUFF_SIZE];
 	
+	if(ioread32(vp[3]->base_addr+4*0)!=1)
+	{
+		printk("Jos uvek nije ready");
+		return -EAGAIN;
+	}	
+	
 	if (endRead)
 	{
 		endRead = 0;
@@ -310,24 +316,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	for(i=0; i<100;i++);
 	iowrite32(0, vp[3]->base_addr+4*1);
 	
-	while(ioread32(vp[3]->base_addr+4*0)!=1);
-	
-	
-
-	
-    //printf("\ndimA: %dx%d", dimA[0],dimA[1]);
-    //printf("\ndimB: %dx%d", dimB[0],dimB[1]);
- 
-  //if(ret != -EINVAL)//checking for parsing error
-  //{
-   // iowrite32((256*ypos + xpos)*4, vp->base_addr + 8);
-    //iowrite32(rgb, vp->base_addr);         
-  //}
-  /*else
-  {
-    printk(KERN_WARNING "matrix_write: Wrong write format, expected \"xpos,ypos,rgb\"\n");
-    // return -EINVAL;//parsing error
-  }  */      
+	//while(ioread32(vp[3]->base_addr+4*0)!=1);
   return length;
 }
 
@@ -374,11 +363,11 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
                 dim[1] = m;
                 k++;
             }
-            if(m != dim[1])
+            /*if(m != dim[1])
             {
                 printk("\nError!\n");
                 return -1;
-            }
+            }*/
             m=0;
         }
 
