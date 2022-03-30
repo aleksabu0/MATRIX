@@ -391,7 +391,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 				if(n_glob!=na)
 				{
 					printk("Pogresne dimenzije unosa\n");
-					return -EFAULT;
+					return -EINVAL;
 				}
 				iowrite32(n_glob, vp[3]->base_addr+4*2);
 			}
@@ -401,12 +401,12 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 				if(m_glob!=ma)
 				{
 					printk("Pogresne dimenzije unosa\n");
-					return -EFAULT;
+					return -EINVAL;
 				}
 				if(ma!=mb)
 				{
 					printk("Dimenzije (m) matrica A i B se ne poklapaju\n");
-					return -EFAULT;
+					return -EINVAL;
 				}
 				iowrite32(m_glob, vp[3]->base_addr+4*3);
 			}
@@ -416,7 +416,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 				if(p_glob!=pb)
 				{
 					printk("Pogresne dimenzije unosa\n");
-					return -EFAULT;
+					return -EINVAL;
 				}		
 				iowrite32(p_glob, vp[3]->base_addr+4*4);
 			}		
@@ -536,8 +536,8 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             }
             if(m != dim[1])
             {
-                //printf("\nError!\n");
-                //return -1;
+                printf("\nError! Los unos\n");
+                return -1;
             }
             m=0;
         }
@@ -566,12 +566,12 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
         printk(KERN_INFO "\nMaxDim : 7x7");
-        return -EFAULT;
+        return -EINVAL;
     }
     for(i=0; i<dim[0]*dim[1];i++){
          if(mat[i] > 4096){
             printk(KERN_INFO "\nMaxNum : 4096");
-            return -EFAULT;
+            return -EINVAL;
          }
     }
 }
