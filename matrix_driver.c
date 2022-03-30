@@ -231,8 +231,8 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 				k++;
 			}
 			strcat(buff,";");
-			if(i != n_glob-1)
-				strcat(buff,",");
+			/*if(i != n_glob-1)
+				strcat(buff,",");*/
 		}	
 	}
 	else
@@ -563,7 +563,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
 		
     }
 	mat[j]=myAtoi(num);
-    dim[0]=n+1;
+    dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
         printk(KERN_INFO "\nMaxDim : 7x7");
         return -EFAULT;
