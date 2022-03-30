@@ -205,11 +205,11 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	char temp[BUFF_SIZE];
 	int minor = MINOR(f->f_inode->i_rdev);
 	//printk("Minor broj %d\n",minor);
-	/*if(minor==0 || minor==1)
+	if(minor==0 || minor==1)
 	{
-		printk("Citanje samo iz bram_c\n");
+		printk("Citanje samo iz bram_c i matmul\n");
 		return -EFAULT;
-	}*/
+	}
 	
 	
 	if (endRead)
@@ -219,6 +219,11 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	}
 	if(minor==2)
 	{
+		if(ioread32(vp[3]->base_addr+4*0)!=1)
+		{
+			printk("Jos uvek nije ready");
+			return -EAGAIN;
+		}
 		printk("ispis bram_c");
 		for(i=0;i<n_glob;i++)
 		{
