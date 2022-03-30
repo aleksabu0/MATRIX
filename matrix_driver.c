@@ -346,7 +346,7 @@ int extract_matrix(char store_mat[50], int mat[50],int dim[])
 	//printk("storemat[1]=%d\n",store_mat[2]);
     for (i=1; i<len-1; i++)
     {	
-        if(store_mat[i]==']')
+        if(store_mat[i]==']' && store_mat[i-1]!=']')
         {
             num[numlen]='\0';
             mat[j]=myAtoi(num);
