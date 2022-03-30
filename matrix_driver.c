@@ -342,12 +342,8 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     for (i = 0; store_mat[i] != '\0'; i++);
     len = i;
 
-    for (i = 0; i<len-1; i++)
-    {
-		while((store_mat[i]=='"' || store_mat[i]=='[') && i<2)
-		{
-			i++;
-		}	
+    for (i = 1; i<len-1; i++)
+    {		
         if(store_mat[i]==']')
         {
             num[numlen]='\0';
