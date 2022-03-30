@@ -565,12 +565,12 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
 	mat[j]=myAtoi(num);
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
-        printk(KERN_INFO "\nMaxDim : 7x7");
+        printk(KERN_INFO "\nGRESKA! MaxDim : 7x7");
         return -EINVAL;
     }
     for(i=0; i<dim[0]*dim[1];i++){
          if(mat[i] > 4096){
-            printk(KERN_INFO "\nMaxNum : 4096");
+            printk(KERN_INFO "\nGRESKA! MaxNum : 4096");
             return -EINVAL;
          }
     }
