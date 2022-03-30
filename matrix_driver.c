@@ -395,8 +395,6 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
         }
     }
     dim[0]=n;
-	printk("dim[0]=%d\n",dim[0]);
-	printk("dim[1]=%d\n",dim[1]);
     if(dim[0] > 7 || dim[1] > 7){
         printk("\nMaxDim : 7x7");
         return -EINVAL;
@@ -529,5 +527,3 @@ MODULE_AUTHOR ("FTN");
 MODULE_DESCRIPTION("Test Driver for matrix output.");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("custom:matrix");
-
-
