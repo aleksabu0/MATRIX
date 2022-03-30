@@ -264,7 +264,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
     buff[length] = '\0';
   
     //sscanf(buff, "%[^*]*%s" , store_matA, store_matB);
-	
+	printk("T1 \n");
 	while(buff[i] != '*'){
 		store_matA[k] = buff[i];
 		k++;
@@ -273,11 +273,13 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	store_matA[k]='\0';
 	k = 0;
 	i++;
+	printk("T2 \n");
 	while(buff[i] != '\0'){
 		store_matB[k] = buff[i];
 		k++;
 		i++;
 	}
+	printk("T3 \n");
 	store_matB[k]='\0';
 	printk(KERN_INFO "mat A %s \n",store_matA);
 	
