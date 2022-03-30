@@ -361,11 +361,11 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
                 dim[1] = m;
                 k++;
             }
-            if(m != dim[1])
+            /*if(m != dim[1])
             {
                 printk("\nLOS UNOS\n");
                 return -EINVAL;
-            }
+            }*/
             m=0;
         }
 
@@ -395,6 +395,8 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
         }
     }
     dim[0]=n;
+	printk("dim[0]=%d\n",dim[0]);
+	printk("dim[1]=%d\n",dim[1]);
     if(dim[0] > 7 || dim[1] > 7){
         printk("\nMaxDim : 7x7");
         return -EINVAL;
