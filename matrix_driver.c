@@ -341,8 +341,13 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     for (i = 0; store_mat[i] != '\0'; i++);
     len = i;
 
-    for (i = 1; i<len-1; i++)
-    {
+	i=1;
+	if(store_mat[0]=='"')
+	{
+		i=2;
+	}
+    for (i; i<len-1; i++)
+    {	
         if(store_mat[i]==']')
         {
             num[numlen]='\0';
@@ -362,8 +367,8 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             }
             if(m != dim[1])
             {
-                //printf("\nError!\n");
-                //return -1;
+                printf("\nError!\n");
+                return -1;
             }
             m=0;
         }
@@ -395,13 +400,13 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     }
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
-        //printf("\nMaxDim : 7x7");
-       // return -1;
+        printk("\nMaxDim : 7x7");
+        return -EINVAL;
     }
     for(i=0; i<dim[0]*dim[1];i++){
          if(mat[i] > 4096){
-            //printf("\nMaxNum : 4096");
-            //return -1;
+            printk("\nMaxNum : 4096");
+            return -EINVAL;
          }
     }
 }
