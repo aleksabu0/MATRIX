@@ -376,8 +376,8 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             }
             if(m != dim[1])
             {
-                //printf("\nError!\n");
-                //return -1;
+                printk("\nError!\n");
+                return -1;
             }
             m=0;
         }
