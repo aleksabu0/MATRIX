@@ -343,7 +343,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     len = i;
 
     for (i = 1; i<len-1; i++)
-    {		
+    {
         if(store_mat[i]==']')
         {
             num[numlen]='\0';
@@ -374,7 +374,7 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
             n++;
         }
 
-        if(store_mat[i]==',' && store_mat[i+1]=='[')
+        if(store_mat[i]==',' && store_mat[i+1]!='[')
         {
             num[numlen]='\0';
             mat[j]=myAtoi(num);
