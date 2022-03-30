@@ -258,6 +258,11 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
   
     //sscanf(buff, "%[^*]*%s" , store_matA, store_matB);
 	
+	while(buff[i] !='[')
+	{
+		i++;
+	}	
+	
 	while(buff[i] != '*'){
 		store_matA[k] = buff[i];
 		k++;
