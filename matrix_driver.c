@@ -24,7 +24,7 @@
 
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Driver for matrix output");
+MODULE_DESCRIPTION("Driver for matrix ouvput");
 #define DEVICE_NAME "matrix"
 #define DRIVER_NAME "matrix_driver"
 #define BUFF_SIZE 200
@@ -199,19 +199,12 @@ static ssize_t matrix_read(struct file *f, char __user *buf, size_t len, loff_t 
 	char buff[BUFF_SIZE] = "[\0";
 	char temp[BUFF_SIZE];
 	
-	if(ioread32(vp[3]->base_addr+4*0)!=1)
-	{
-		printk("BUSY\n");
-		return -EAGAIN;		
-	}	
-	
 	if (endRead)
 	{
 		endRead = 0;
 		return 0;
 	}
 	
-	//citanje iz bramC ako je ready
 	for(i=0;i<n;i++)
 	{
 		strcat(buff,"[");
@@ -264,7 +257,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
     buff[length] = '\0';
   
     //sscanf(buff, "%[^*]*%s" , store_matA, store_matB);
-	printk("T1 \n");
+	
 	while(buff[i] != '*'){
 		store_matA[k] = buff[i];
 		k++;
@@ -273,13 +266,11 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	store_matA[k]='\0';
 	k = 0;
 	i++;
-	printk("T2 \n");
 	while(buff[i] != '\0'){
 		store_matB[k] = buff[i];
 		k++;
 		i++;
 	}
-	printk("T3 \n");
 	store_matB[k]='\0';
 	printk(KERN_INFO "mat A %s \n",store_matA);
 	
@@ -288,27 +279,24 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
     extract_matrix(store_matB, matB, dimB);
 	printk(KERN_INFO "Ended extraction\n");
     if(dimA[1] != dimB[0]){
-        printk(KERN_INFO "\nError: Dimenzije matrica se ne slazu\n");
-        return -EINVAL;
+        printk(KERN_INFO "\nError: DiffDim\n");
+        //return -1;
     }
 
 	n = dimA[0];
 	m = dimA[1];
 	p = dimB[1];
 	
-	//upisivanje matrice A u bramA
 	for(i=0;i<dimA[0]*dimA[1];i++)
 	{
 		iowrite32(matA[i], vp[0]->base_addr+4*i);
 	}
-	
-	//upisivanje matrice B u bramB
+
 	for(i=0;i<dimB[0]*dimB[1];i++)
 	{
 		iowrite32(matB[i], vp[1]->base_addr+4*i);
 	}
 	
-	//upisivanje u matmul modul
 	iowrite32(n, vp[3]->base_addr+4*2);
 	iowrite32(m, vp[3]->base_addr+4*3);
 	iowrite32(p, vp[3]->base_addr+4*4);
@@ -317,21 +305,30 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 	for(i=0; i<100;i++);
 	iowrite32(0, vp[3]->base_addr+4*1);
 	
-	//sve kod ne bude ready=1
-	//while(ioread32(vp[3]->base_addr+4*0)!=1);
+	while(ioread32(vp[3]->base_addr+4*0)!=1);
 	
 	
 
 	
     //printf("\ndimA: %dx%d", dimA[0],dimA[1]);
-    //printf("\ndimB: %dx%d", dimB[0],dimB[1]);     
+    //printf("\ndimB: %dx%d", dimB[0],dimB[1]);
+ 
+  //if(ret != -EINVAL)//checking for parsing error
+  //{
+   // iowrite32((256*ypos + xpos)*4, vp->base_addr + 8);
+    //iowrite32(rgb, vp->base_addr);         
+  //}
+  /*else
+  {
+    printk(KERN_WARNING "matrix_write: Wrong write format, expected \"xpos,ypos,rgb\"\n");
+    // return -EINVAL;//parsing error
+  }  */      
   return length;
 }
 
 //***************************************************
 // HELPER FUNCTIONS (READ MATRIX)
 
-//pomocna funkcija za ektrakciju matrice iz unosa
 void extract_matrix(char store_mat[50], int mat[50],int dim[])
 {
     int i, j=0, k=0;
@@ -363,11 +360,11 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
                 dim[1] = m;
                 k++;
             }
-            /*if(m != dim[1])
+            if(m != dim[1])
             {
-                printk("\nLOS UNOS\n");
-                return -EINVAL;
-            }*/
+                //printf("\nError!\n");
+                //return -1;
+            }
             m=0;
         }
 
@@ -398,18 +395,17 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     }
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
-        printk("\nMaxDim : 7x7");
-        return -EINVAL;
+        //printf("\nMaxDim : 7x7");
+       // return -1;
     }
     for(i=0; i<dim[0]*dim[1];i++){
          if(mat[i] > 4096){
-            printk("\nMaxNum : 4096");
-            return -EINVAL;
+            //printf("\nMaxNum : 4096");
+            //return -1;
          }
     }
 }
 
-//pomocna funkcija za konverziju integera u string
 int myAtoi(char* str)
 {
     int res = 0;
@@ -419,7 +415,6 @@ int myAtoi(char* str)
     return res;
 }
 
-//pomocna funkcija za konverziju stringa u integer
 void myItoa(int n, char s[])
  {
 	 int i, sign;
@@ -436,7 +431,6 @@ void myItoa(int n, char s[])
 	 reverse(s);
  }
 
-//pomocna funkcija za myItoa
 void reverse(char s[])
  {
      int i, j;
