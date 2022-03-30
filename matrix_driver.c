@@ -41,7 +41,7 @@ static int __init matrix_init(void);
 static void __exit matrix_exit(void);
 static int matrix_remove(struct platform_device *pdev);
 int my_strcmp(const char* s1, const char* s2);
-void extract_matrix(char store_mat[50], int mat[50],int dim[50]);
+int extract_matrix(char store_mat[50], int mat[50],int dim[50]);
 int myAtoi(char* str);
 void myItoa(int num, char* str);
 void reverse(char s[]); 
@@ -313,7 +313,10 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 		
 		printk(KERN_INFO "mat A %s \n",store_matA);		
 		printk(KERN_INFO "Starting extraction\n");
-		extract_matrix(store_matA, matA, dimA);	 
+		if(extract_matrix(store_matA, matA, dimA)==13)
+		{
+			return -EINVAL;
+		}		
 		printk(KERN_INFO "Ended extraction\n");
 		printk(KERN_INFO "Matrica ");
 		for(i=0;i<dimA[0]*dimA[1];i++)
@@ -508,7 +511,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 //***************************************************
 // HELPER FUNCTIONS (READ MATRIX)
 
-void extract_matrix(char store_mat[50], int mat[50],int dim[])
+int extract_matrix(char store_mat[50], int mat[50],int dim[])
 {
     int i, j=0, k=0;
     int z=0;
@@ -571,14 +574,15 @@ void extract_matrix(char store_mat[50], int mat[50],int dim[])
     dim[0]=n;
     if(dim[0] > 7 || dim[1] > 7){
         printk(KERN_INFO "\nGRESKA! MaxDim : 7x7");
-        return -EINVAL;
+        return 13;
     }
     for(i=0; i<dim[0]*dim[1];i++){
          if(mat[i] > 4096){
             printk(KERN_INFO "\nGRESKA! MaxNum : 4096");
-            return -EINVAL;
+            return 13;
          }
     }
+	return 0;
 }
 
 int myAtoi(char* str)
