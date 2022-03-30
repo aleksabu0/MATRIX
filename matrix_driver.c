@@ -341,15 +341,9 @@ int extract_matrix(char store_mat[50], int mat[50],int dim[])
     for (i = 0; store_mat[i] != '\0'; i++);
     len = i;
 	
-	printk("storemat[0]=%d\n",store_mat[0]);
-	printk("storemat[1]=%d\n",store_mat[1]);
-	printk("storemat[1]=%d\n",store_mat[2]);
-	i=0;
-	/*if(store_mat[0]!='[');
-	{
-		i++;
-	}*/
-	i++;
+	//printk("storemat[0]=%d\n",store_mat[0]);
+	//printk("storemat[1]=%d\n",store_mat[1]);
+	//printk("storemat[1]=%d\n",store_mat[2]);
     for (i=1; i<len-1; i++)
     {	
         if(store_mat[i]==']')
@@ -369,11 +363,12 @@ int extract_matrix(char store_mat[50], int mat[50],int dim[])
                 dim[1] = m;
                 k++;
             }
-            /*if(m != dim[1])
+			printk("m=%d\n",m);
+            if(m != dim[1])
             {
                 printk("\nError!\n");
                 return -1;
-            }*/
+            }
             m=0;
         }
 
