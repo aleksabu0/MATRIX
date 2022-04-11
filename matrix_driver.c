@@ -318,11 +318,11 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			return -EINVAL;
 		}		
 		printk(KERN_INFO "Ended extraction\n");
-		printk(KERN_INFO "Matrica ");
+		/*printk(KERN_INFO "Matrica ");
 		for(i=0;i<dimA[0]*dimA[1];i++)
 		{
 			printk(KERN_INFO "Matrica %d",matA[i]);
-		}
+		}*/
 		printk(KERN_INFO "\n");
 		printk(KERN_INFO "Dimenzije %d %d \n",dimA[0],dimA[1]);
 		
@@ -391,7 +391,7 @@ static ssize_t matrix_write(struct file *f, const char __user *buf, size_t lengt
 			}
 			num[numlen]='\0';
             int temp_numb=myAtoi(num);
-			printk("unet broj %d\n",temp_numb);
+			//printk("unet broj %d\n",temp_numb);
 			
 			if(casem==1)
 			{
